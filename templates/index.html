@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Car Price Predictor</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── CSS Variables ─────────────────────────── */
+    :root {
+      --bg:       #0d0d0d;
+      --surface:  #141414;
+      --card:     #1a1a1a;
+      --border:   #2a2a2a;
+      --accent:   #e8b84b;
+      --accent2:  #c97b3a;
+      --text:     #f0ece4;
+      --muted:    #888;
+      --success:  #5dba7a;
+      --radius:   12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ────────────────────────────────── */
+    header {
+      background: linear-gradient(135deg, #111 0%, #1c1408 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 40px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .logo-icon {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.8rem;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+    }
+    header p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ── Layout ─────────────────────────────────── */
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 36px 24px 80px;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 28px;
+    }
+    @media (max-width: 860px) {
+      .page { grid-template-columns: 1fr; }
+    }
+
+    /* ── Info Banner ────────────────────────────── */
+    .info-banner {
+      background: linear-gradient(90deg, #1f1a0e, #171209);
+      border: 1px solid #3a2e12;
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      grid-column: 1 / -1;
+    }
+    .info-banner .icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .info-banner p { font-size: 0.85rem; color: #c8b07a; line-height: 1.6; }
+    .info-banner strong { color: var(--accent); }
+
+    /* ── Form Card ──────────────────────────────── */
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .section-header {
+      background: #1f1f1f;
+      border-bottom: 1px solid var(--border);
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-header h2 {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent);
+    }
+    .section-body { padding: 20px 22px 24px; }
+
+    /* ── Fields ─────────────────────────────────── */
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 14px;
+    }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label {
+      font-size: 0.73rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .field label .tip {
+      display: block;
+      font-size: 0.67rem;
+      color: #555;
+      text-transform: none;
+      letter-spacing: 0;
+      margin-top: 1px;
+    }
+    .field input,
+    .field select {
+      background: #111;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.88rem;
+      font-family: 'DM Sans', sans-serif;
+      width: 100%;
+      transition: border-color .2s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .field select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+    .field input:focus,
+    .field select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(232,184,75,0.08);
+    }
+    .field.full { grid-column: 1 / -1; }
+
+    /* ── Divider ─────────────────────────────────── */
+    .section-gap { height: 20px; }
+
+    /* ── Submit ──────────────────────────────────── */
+    .submit-area {
+      padding: 0 22px 22px;
+    }
+    .btn-predict {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #111;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      cursor: pointer;
+      transition: opacity .2s, transform .1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-predict:hover { opacity: 0.9; }
+    .btn-predict:active { transform: scale(0.99); }
+    .btn-predict .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .btn-predict.loading .spinner { display: block; }
+    .btn-predict.loading .btn-text { opacity: 0.7; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Result Sidebar ──────────────────────────── */
+    .sidebar { display: flex; flex-direction: column; gap: 18px; }
+
+    .result-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .result-inner {
+      padding: 28px 24px;
+      text-align: center;
+    }
+    .result-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .result-price {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.8rem;
+      color: var(--accent);
+      line-height: 1;
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .result-price.placeholder { font-size: 1.1rem; color: #444; font-family: 'DM Sans', sans-serif; }
+    .result-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .error-msg {
+      background: #1f1010;
+      border: 1px solid #5a1a1a;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.82rem;
+      color: #e05a5a;
+      display: none;
+      margin-top: 14px;
+      text-align: left;
+    }
+
+    /* ── Tips Card ───────────────────────────────── */
+    .tips-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .tips-card h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+    .tip-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .tip-item .dot {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+
+    /* ── Footer ──────────────────────────────────── */
+    footer {
+      text-align: center;
+      color: #333;
+      font-size: 0.75rem;
+      padding: 28px;
+      border-top: 1px solid #1a1a1a;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-icon">🚗</div>
+  <div>
+    <h1>Car Price Predictor</h1>
+    <p>Powered by a trained Random Forest model · Fill in the details below</p>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- Info Banner -->
+  <div class="info-banner">
+    <div class="icon">💡</div>
+    <p>
+      <strong>How this works:</strong> This app uses a machine learning model trained on real car data.
+      Fill in the car's specifications below and click <strong>"Predict Price"</strong> to see the estimated market value.
+      All fields have sensible defaults — just change the ones you know!
+    </p>
+  </div>
+
+  <!-- Main Form -->
+  <form id="carForm">
+
+    <!-- Section 1: Identity -->
+    <div class="form-card">
+      <div class="section-header">
+        <span>🏷️</span>
+        <h2>Car Identity</h2>
+      </div>
+      <div class="section-body">
+        <div class="field-grid">
+          <div class="field full">
+            <label>Car Name <span class="tip">Brand and model of the car</span></label>
+            <select name="CarName">
+              {% for opt in options.CarName %}
+                <option value="{{ opt }}" {% if opt == 'toyota corolla' %}selected{% endif %}>{{ opt | title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label>Car ID <span class="tip">Internal identifier</span></label>
+            <input type="number" name="car_ID" value="{{ defaults.car_ID }}" min="1" />
+          </div>
+          <div class="field">
+            <label>Symboling <span class="tip">Risk rating: -3 (safe) to +3 (risky)</span></label>
+            <input type="number" name="symboling" value="{{ defaults.symboling }}" min="-3" max="3" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-gap"></div>
+
+    <!-- Section 2: Body -->
+    <div class="form-card">
+      <div class="section-header">
+        <span>🚘</span>
+        <h2>Body &amp; Style</h2>
+      </div>
+      <div class="section-body">
+        <div class="field-grid">
+          <div class="field">
+            <label>Fuel Type</label>
+            <select name="fueltype">
+              {% for opt in options.fueltype %}
+                <option value="{{ opt }}" {% if opt == 'gas' %}selected{% endif %}>{{ opt | title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label>Number of Doors</label>
+            <select name="doornumber">
+              {% for opt in options.doornumber %}
+                <option value="{{ opt }}" {% if opt == 'four' %}selected{% endif %}>{{ opt | title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label>Body Style</label>
+            <select name="carbody">
+              {% for opt in options.carbody %}
+                <option value="{{ opt }}" {% if opt == 'sedan' %}selected{% endif %}>{{ opt | title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label>Drive Wheel</label>
+            <select name="drivewheel">
+              {% for opt in options.drivewheel %}
+                <option value="{{ opt }}" {% if opt == 'fwd' %}selected{% endif %}>{{ opt | upper }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-gap"></div>
+
+    <!-- Section 3: Dimensions -->
+    <div class="form-card">
+      <div class="section-header">
+        <span>📐</span>
+        <h2>Dimensions &amp; Weight</h2>
+      </div>
+      <div class="section-body">
+        <div class="field-grid">
+          <div class="field">
+            <label>Wheelbase <span class="tip">Inches</span></label>
+            <input type="number" name="wheelbase" value="{{ defaults.wheelbase }}" step="0.1" />
+          </div>
+          <div class="field">
+            <label>Car Length <span class="tip">Inches</span></label>
+            <input type="number" name="carlength" value="{{ defaults.carlength }}" step="0.1" />
+          </div>
+          <div class="field">
+            <label>Car Width <span class="tip">Inches</span></label>
+            <input type="number" name="carwidth" value="{{ defaults.carwidth }}" step="0.1" />
+          </div>
+          <div class="field">
+            <label>Car Height <span class="tip">Inches</span></label>
+            <input type="number" name="carheight" value="{{ defaults.carheight }}" step="0.1" />
+          </div>
+          <div class="field">
+            <label>Curb Weight <span class="tip">Pounds</span></label>
+            <input type="number" name="curbweight" value="{{ defaults.curbweight }}" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-gap"></div>
+
+    <!-- Section 4: Engine -->
+    <div class="form-card">
+      <div class="section-header">
+        <span>⚙️</span>
+        <h2>Engine Specs</h2>
+      </div>
+      <div class="section-body">
+        <div class="field-grid">
+          <div class="field">
+            <label>Aspiration <span class="tip">Standard or Turbo</span></label>
+            <select name="aspiration">
+              {% for opt in options.aspiration %}
+                <option value="{{ opt }}" {% if opt == 'std' %}selected{% endif %}>{{ opt | title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label>Engine Location</label>
+            <select name="enginelocation">
+              {% for opt in options.enginelocation %}
+                <option value="{{ opt }}" {% if opt == 'front' %}selected{% endif %}>{{ opt | title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label>Engine Type</label>
+            <select name="enginetype">
+              {% for opt in options.enginetype %}
+                <option value="{{ opt }}" {% if opt == 'ohc' %}selected{% endif %}>{{ opt | upper }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label>Cylinder Number</label>
+            <select name="cylindernumber">
+              {% for opt in options.cylindernumber %}
+                <option value="{{ opt }}" {% if opt == 'four' %}selected{% endif %}>{{ opt | title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label>Fuel System</label>
+            <select name="fuelsystem">
+              {% for opt in options.fuelsystem %}
+                <option value="{{ opt }}" {% if opt == 'mpfi' %}selected{% endif %}>{{ opt | upper }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label>Engine Size <span class="tip">CC</span></label>
+            <input type="number" name="enginesize" value="{{ defaults.enginesize }}" />
+          </div>
+          <div class="field">
+            <label>Bore Ratio</label>
+            <input type="number" name="boreratio" value="{{ defaults.boreratio }}" step="0.01" />
+          </div>
+          <div class="field">
+            <label>Stroke</label>
+            <input type="number" name="stroke" value="{{ defaults.stroke }}" step="0.01" />
+          </div>
+          <div class="field">
+            <label>Compression Ratio</label>
+            <input type="number" name="compressionratio" value="{{ defaults.compressionratio }}" step="0.1" />
+          </div>
+          <div class="field">
+            <label>Horsepower</label>
+            <input type="number" name="horsepower" value="{{ defaults.horsepower }}" />
+          </div>
+          <div class="field">
+            <label>Peak RPM</label>
+            <input type="number" name="peakrpm" value="{{ defaults.peakrpm }}" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-gap"></div>
+
+    <!-- Section 5: Fuel Economy -->
+    <div class="form-card">
+      <div class="section-header">
+        <span>⛽</span>
+        <h2>Fuel Economy</h2>
+      </div>
+      <div class="section-body">
+        <div class="field-grid">
+          <div class="field">
+            <label>City MPG <span class="tip">Miles per gallon in city</span></label>
+            <input type="number" name="citympg" value="{{ defaults.citympg }}" />
+          </div>
+          <div class="field">
+            <label>Highway MPG <span class="tip">Miles per gallon on highway</span></label>
+            <input type="number" name="highwaympg" value="{{ defaults.highwaympg }}" />
+          </div>
+        </div>
+      </div>
+
+      <div class="submit-area">
+        <button type="submit" class="btn-predict" id="predictBtn">
+          <div class="spinner"></div>
+          <span class="btn-text">🔮 Predict Price</span>
+        </button>
+        <div class="error-msg" id="errorMsg"></div>
+      </div>
+    </div>
+
+  </form>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+
+    <div class="result-card">
+      <div class="section-header">
+        <span>💰</span>
+        <h2>Predicted Price</h2>
+      </div>
+      <div class="result-inner">
+        <div class="result-label">Estimated Market Value</div>
+        <div class="result-price placeholder" id="resultPrice">Fill the form &amp; click predict</div>
+        <div class="result-sub" id="resultSub"></div>
+      </div>
+    </div>
+
+    <div class="tips-card">
+      <h3>📚 What do these fields mean?</h3>
+      <div class="tip-item"><div class="dot"></div><div><strong>Symboling</strong> — insurance risk rating assigned by actuaries. Higher = riskier.</div></div>
+      <div class="tip-item"><div class="dot"></div><div><strong>Aspiration</strong> — "std" means naturally aspirated; "turbo" means turbocharged engine.</div></div>
+      <div class="tip-item"><div class="dot"></div><div><strong>Wheelbase</strong> — distance between front and rear axles. Longer = more stable.</div></div>
+      <div class="tip-item"><div class="dot"></div><div><strong>Curb Weight</strong> — weight of the car without passengers or cargo.</div></div>
+      <div class="tip-item"><div class="dot"></div><div><strong>Bore Ratio</strong> — diameter of each cylinder; affects engine performance.</div></div>
+      <div class="tip-item"><div class="dot"></div><div><strong>MPFI / 2bbl</strong> — fuel injection types. MPFI is modern multi-point injection.</div></div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  Built with Flask &amp; scikit-learn · Random Forest Regressor · Car Price Prediction Dataset
+</footer>
+
+<script>
+  const form = document.getElementById('carForm');
+  const btn = document.getElementById('predictBtn');
+  const resultPrice = document.getElementById('resultPrice');
+  const resultSub = document.getElementById('resultSub');
+  const errorMsg = document.getElementById('errorMsg');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Loading state
+    btn.classList.add('loading');
+    errorMsg.style.display = 'none';
+    resultPrice.textContent = '...';
+    resultPrice.classList.add('placeholder');
+    resultSub.textContent = '';
+
+    try {
+      const formData = new FormData(form);
+      const res = await fetch('/predict', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (data.success) {
+        resultPrice.classList.remove('placeholder');
+        resultPrice.textContent = data.formatted;
+        resultSub.textContent = `Raw value: $${data.price.toLocaleString()}`;
+      } else {
+        throw new Error(data.error || 'Prediction failed');
+      }
+    } catch (err) {
+      resultPrice.textContent = 'Error';
+      errorMsg.textContent = '⚠️ ' + err.message;
+      errorMsg.style.display = 'block';
+    } finally {
+      btn.classList.remove('loading');
+    }
+  });
+</script>
+
+</body>
+</html>
