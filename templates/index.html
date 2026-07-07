@@ -588,7 +588,7 @@
       if (data.success) {
         resultPrice.classList.remove('placeholder');
         resultPrice.textContent = data.formatted;
-        resultSub.textContent = `Raw value: $${data.price.toLocaleString()}`;
+        resultSub.textContent = `Raw value: ₦${data.price.toLocaleString()}`;
       } else {
         throw new Error(data.error || 'Prediction failed');
       }
