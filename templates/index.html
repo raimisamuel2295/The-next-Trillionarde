@@ -586,9 +586,11 @@
       const data = await res.json();
 
       if (data.success) {
+        const usdToNgn = 1350;
+        const priceNgn = data.price * usdToNgn;
         resultPrice.classList.remove('placeholder');
-        resultPrice.textContent = data.formatted;
-        resultSub.textContent = `Raw value: ₦${data.price.toLocaleString()}`;
+        resultPrice.textContent = '₦' + priceNgn.toLocaleString('en-NG', { maximumFractionDigits: 0 });
+        resultSub.textContent = `≈ $${data.price.toLocaleString()} USD × ₦1350`;
       } else {
         throw new Error(data.error || 'Prediction failed');
       }
